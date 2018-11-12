@@ -1,22 +1,20 @@
 package main
 
 import (
-	"context"
+	"flag"
 	"runtime"
-	"time"
-
-	"github.com/openshift/cluster-ingress-operator/pkg/manifests"
-	stub "github.com/openshift/cluster-ingress-operator/pkg/stub"
-	"github.com/openshift/cluster-ingress-operator/pkg/util"
-
-	"github.com/operator-framework/operator-sdk/pkg/k8sclient"
-	sdk "github.com/operator-framework/operator-sdk/pkg/sdk"
-	k8sutil "github.com/operator-framework/operator-sdk/pkg/util/k8sutil"
-	sdkVersion "github.com/operator-framework/operator-sdk/version"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/openshift/cluster-ingress-operator/pkg/apis"
+	"github.com/openshift/cluster-ingress-operator/pkg/controller"
+
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
+	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 )
 
 func printVersion() {
@@ -27,37 +25,39 @@ func printVersion() {
 
 func main() {
 	printVersion()
+	flag.Parse()
 
-	sdk.ExposeMetricsPort()
-
-	resource := "ingress.openshift.io/v1alpha1"
-	kind := "ClusterIngress"
 	namespace, err := k8sutil.GetWatchNamespace()
 	if err != nil {
-		logrus.Fatalf("Failed to get watch namespace: %v", err)
+		logrus.Fatalf("failed to get watch namespace: %v", err)
 	}
-	kubeClient := k8sclient.GetKubeClient()
 
-	ic, err := util.GetInstallConfig(kubeClient)
+	// Get a config to talk to the apiserver
+	cfg, err := config.GetConfig()
 	if err != nil {
-		logrus.Fatalf("could't get installconfig: %v", err)
+		logrus.Fatal(err)
 	}
 
-	handler := &stub.Handler{
-		InstallConfig:   ic,
-		Namespace:       namespace,
-		ManifestFactory: manifests.NewFactory(),
+	// Create a new Cmd to provide shared dependencies and start components
+	mgr, err := manager.New(cfg, manager.Options{Namespace: namespace})
+	if err != nil {
+		logrus.Fatal(err)
 	}
 
-	if err := handler.EnsureDefaultClusterIngress(); err != nil {
-		logrus.Fatalf("failed to ensure default cluster ingress: %v", err)
+	logrus.Info("Registering Components.")
+
+	// Setup Scheme for all resources
+	if err := apis.AddToScheme(mgr.GetScheme()); err != nil {
+		logrus.Fatal(err)
 	}
-	resyncPeriod := 10 * time.Minute
-	logrus.Infof("Watching %s, %s, %s, %d", resource, kind, namespace, resyncPeriod)
-	sdk.Watch(resource, kind, namespace, resyncPeriod)
-	// TODO Use a named constant for the router's namespace or get the
-	// namespace from config.
-	sdk.Watch("apps/v1", "DaemonSet", "openshift-ingress", resyncPeriod)
-	sdk.Handle(handler)
-	sdk.Run(context.TODO())
+
+	// Setup all Controllers
+	if err := controller.AddToManager(mgr); err != nil {
+		logrus.Fatal(err)
+	}
+
+	logrus.Info("Starting the Cmd.")
+
+	// Start the Cmd
+	logrus.Fatal(mgr.Start(signals.SetupSignalHandler()))
 }
