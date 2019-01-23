@@ -14,6 +14,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	monv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -40,6 +42,9 @@ var scheme *runtime.Scheme
 func init() {
 	scheme = kscheme.Scheme
 	if err := apis.AddToScheme(scheme); err != nil {
+		panic(err)
+	}
+	if err := monv1.AddToScheme(scheme); err != nil {
 		panic(err)
 	}
 	if err := configv1.Install(scheme); err != nil {
@@ -82,6 +87,8 @@ func New(config operatorconfig.Config, dnsManager dns.Manager, kubeConfig *rest.
 		Namespace:       config.Namespace,
 		ManifestFactory: mf,
 		DNSManager:      dnsManager,
+		// We could expose this knob in ClusterIngress.Spec if needed
+		EnableRouterMetrics: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create operator controller: %v", err)
