@@ -38,6 +38,14 @@ required = [
   revision = "410d9946edf56ab0bad81164e9203d807fad7a9b"
 
 [[constraint]]
+  name = "github.com/coreos/prometheus-operator"
+  version = "v0.27.0"
+
+[[constraint]]
+  name = "github.com/openshift/library-go"
+  revision = "cef3bac303c956844aa15215630d26b1e0a1085a"
+
+[[constraint]]
   name = "github.com/aws/aws-sdk-go"
   version = "v1.15.72"
 
