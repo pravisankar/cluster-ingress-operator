@@ -24,7 +24,8 @@ spec:
       priorityClassName: system-cluster-critical
       containers:
         - name: ingress-operator
-          image: openshift/origin-cluster-ingress-operator:latest
+          image: pravisankar82/origin-cluster-ingress-operator:latest
+          imagePullPolicy: Always
           ports:
           - containerPort: 60000
             name: metrics
