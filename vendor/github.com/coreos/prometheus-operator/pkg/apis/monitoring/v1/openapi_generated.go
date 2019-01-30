@@ -52,6 +52,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RemoteWriteSpec":       schema_pkg_apis_monitoring_v1_RemoteWriteSpec(ref),
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.Rule":                  schema_pkg_apis_monitoring_v1_Rule(ref),
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RuleGroup":             schema_pkg_apis_monitoring_v1_RuleGroup(ref),
+		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.Rules":                 schema_pkg_apis_monitoring_v1_Rules(ref),
+		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RulesAlert":            schema_pkg_apis_monitoring_v1_RulesAlert(ref),
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ServiceMonitor":        schema_pkg_apis_monitoring_v1_ServiceMonitor(ref),
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ServiceMonitorList":    schema_pkg_apis_monitoring_v1_ServiceMonitorList(ref),
 		"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ServiceMonitorSpec":    schema_pkg_apis_monitoring_v1_ServiceMonitorSpec(ref),
@@ -1309,6 +1311,13 @@ func schema_pkg_apis_monitoring_v1_PrometheusSpec(ref common.ReferenceCallback) 
 							Format:      "",
 						},
 					},
+					"logFormat": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Log format for Prometheus to be configured with.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"scrapeInterval": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Interval between consecutive scrapes.",
@@ -1323,6 +1332,12 @@ func schema_pkg_apis_monitoring_v1_PrometheusSpec(ref common.ReferenceCallback) 
 							Format:      "",
 						},
 					},
+					"rules": {
+						SchemaProps: spec.SchemaProps{
+							Description: "/--rules.*/ command-line arguments.",
+							Ref:         ref("github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.Rules"),
+						},
+					},
 					"externalLabels": {
 						SchemaProps: spec.SchemaProps{
 							Description: "The labels to add to any time series or alerts when communicating with external systems (federation, remote storage, Alertmanager).",
@@ -1335,6 +1350,13 @@ func schema_pkg_apis_monitoring_v1_PrometheusSpec(ref common.ReferenceCallback) 
 									},
 								},
 							},
+						},
+					},
+					"enableAdminAPI": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Enable access to prometheus web admin API. Defaults to the value of `false`. WARNING: Enabling the admin APIs enables mutating endpoints, to delete data, shutdown Prometheus, and more. Enabling this should be done with care and the user is advised to add additional authentication authorization via a proxy to ensure only clients authorized to perform these actions can do so. For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#tsdb-admin-apis",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 					"externalUrl": {
@@ -1548,7 +1570,7 @@ func schema_pkg_apis_monitoring_v1_PrometheusSpec(ref common.ReferenceCallback) 
 			},
 		},
 		Dependencies: []string{
-			"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.APIServerConfig", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.AlertingSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.QuerySpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RemoteReadSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RemoteWriteSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.StorageSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosSpec", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecretKeySelector", "k8s.io/api/core/v1.Toleration", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.APIServerConfig", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.AlertingSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.QuerySpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RemoteReadSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RemoteWriteSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.Rules", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.StorageSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosSpec", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecretKeySelector", "k8s.io/api/core/v1.Toleration", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -1644,6 +1666,13 @@ func schema_pkg_apis_monitoring_v1_QueueConfig(ref common.ReferenceCallback) com
 					"capacity": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Capacity is the number of samples to buffer per shard before we start dropping them.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"minShards": {
+						SchemaProps: spec.SchemaProps{
+							Description: "MinShards is the minimum number of shards, i.e. amount of concurrency.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},
@@ -2033,6 +2062,59 @@ func schema_pkg_apis_monitoring_v1_RuleGroup(ref common.ReferenceCallback) commo
 	}
 }
 
+func schema_pkg_apis_monitoring_v1_Rules(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "/--rules.*/ command-line arguments",
+				Properties: map[string]spec.Schema{
+					"alert": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RulesAlert"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.RulesAlert"},
+	}
+}
+
+func schema_pkg_apis_monitoring_v1_RulesAlert(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "/--rules.alert.*/ command-line arguments",
+				Properties: map[string]spec.Schema{
+					"forOutageTolerance": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Max time to tolerate prometheus outage for restoring 'for' state of alert.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"forGracePeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Minimum duration between alert and restored 'for' state. This is maintained only for alerts with configured 'for' time greater than grace period.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"resendDelay": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Minimum amount of time to wait before resending an alert to Alertmanager.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
 func schema_pkg_apis_monitoring_v1_ServiceMonitor(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -2276,7 +2358,7 @@ func schema_pkg_apis_monitoring_v1_ThanosGCSSpec(ref common.ReferenceCallback) c
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "ThanosGCSSpec defines parameters for use of Google Cloud Storage (GCS) with Thanos.",
+				Description: "Deprecated: ThanosGCSSpec should be configured with an ObjectStorageConfig secret starting with Thanos v0.2.0. ThanosGCSSpec will be removed.",
 				Properties: map[string]spec.Schema{
 					"bucket": {
 						SchemaProps: spec.SchemaProps{
@@ -2303,7 +2385,7 @@ func schema_pkg_apis_monitoring_v1_ThanosS3Spec(ref common.ReferenceCallback) co
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "ThanosS3Spec defines parameters for of AWS Simple Storage Service (S3) with Thanos. (S3 compatible services apply as well)",
+				Description: "Deprecated: ThanosS3Spec should be configured with an ObjectStorageConfig secret starting with Thanos v0.2.0. ThanosS3Spec will be removed.",
 				Properties: map[string]spec.Schema{
 					"bucket": {
 						SchemaProps: spec.SchemaProps{
@@ -2416,21 +2498,27 @@ func schema_pkg_apis_monitoring_v1_ThanosSpec(ref common.ReferenceCallback) comm
 					},
 					"gcs": {
 						SchemaProps: spec.SchemaProps{
-							Description: "GCS configures use of GCS in Thanos.",
+							Description: "Deprecated: GCS should be configured with an ObjectStorageConfig secret starting with Thanos v0.2.0. This field will be removed.",
 							Ref:         ref("github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosGCSSpec"),
 						},
 					},
 					"s3": {
 						SchemaProps: spec.SchemaProps{
-							Description: "S3 configures use of S3 in Thanos.",
+							Description: "Deprecated: S3 should be configured with an ObjectStorageConfig secret starting with Thanos v0.2.0. This field will be removed.",
 							Ref:         ref("github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosS3Spec"),
+						},
+					},
+					"objectStorageConfig": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ObjectStorageConfig configures object storage in Thanos.",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosGCSSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosS3Spec", "k8s.io/api/core/v1.ResourceRequirements"},
+			"github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosGCSSpec", "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1.ThanosS3Spec", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecretKeySelector"},
 	}
 }
 

@@ -80,8 +80,8 @@
     "pkg/apis/monitoring",
     "pkg/apis/monitoring/v1"
   ]
-  revision = "174c9bf17bec78b055e8e63c6ae3a3dc9bb0a3a8"
-  version = "v0.27.0"
+  revision = "338addbabc8a29b46840df0bb0355c12b96a6f21"
+  version = "v0.28.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -97,12 +97,6 @@
   ]
   revision = "e37671aced663c8d3a395bd301857e26dcf4340c"
   version = "v2.8.1"
-
-[[projects]]
-  name = "github.com/ghodss/yaml"
-  packages = ["."]
-  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/go-logr/logr"
@@ -282,9 +276,10 @@
     "config/v1",
     "route/v1"
   ]
-  revision = "410d9946edf56ab0bad81164e9203d807fad7a9b"
+  revision = "31ed61683850951801cddda5b075fcb24a500532"
 
 [[projects]]
+  branch = "master"
   name = "github.com/openshift/library-go"
   packages = ["pkg/crypto"]
   revision = "cef3bac303c956844aa15215630d26b1e0a1085a"
@@ -385,7 +380,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "54b0dbbbf4499798258d115b783fd6e1c89e39c9"
+  revision = "ccddf3741a0cfcee0a62d34c18c2c5417a3761af"
 
 [[projects]]
   branch = "master"
@@ -466,7 +461,7 @@
     "internal/module",
     "internal/semver"
   ]
-  revision = "0a99049195aff55f007fc4dfd48e3ec2b4d5f602"
+  revision = "9cefa6771f8f3c72b346adb1995b7432464d4038"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -506,6 +501,7 @@
     "apps/v1",
     "apps/v1beta1",
     "apps/v1beta2",
+    "auditregistration/v1alpha1",
     "authentication/v1",
     "authentication/v1beta1",
     "authorization/v1",
@@ -533,8 +529,8 @@
     "storage/v1alpha1",
     "storage/v1beta1"
   ]
-  revision = "b503174bad5991eb66f18247f52e41c3258f6348"
-  version = "kubernetes-1.12.3"
+  revision = "05914d821849570fba9eacfb29466f2d8d3cd229"
+  version = "kubernetes-1.13.1"
 
 [[projects]]
   name = "k8s.io/apiextensions-apiserver"
@@ -542,8 +538,8 @@
     "pkg/apis/apiextensions",
     "pkg/apis/apiextensions/v1beta1"
   ]
-  revision = "0cd23ebeb6882bd1cdc2cb15fc7b2d72e8a86a5b"
-  version = "kubernetes-1.12.3"
+  revision = "0fe22c71c47604641d9aa352c785b7912c200562"
+  version = "kubernetes-1.13.1"
 
 [[projects]]
   name = "k8s.io/apimachinery"
@@ -593,8 +589,8 @@
     "third_party/forked/golang/json",
     "third_party/forked/golang/reflect"
   ]
-  revision = "eddba98df674a16931d2d4ba75edc3a389bf633a"
-  version = "kubernetes-1.12.3"
+  revision = "2b1284ed4c93a43499e781493253e2ac5959c4fd"
+  version = "kubernetes-1.13.0"
 
 [[projects]]
   branch = "master"
@@ -618,6 +614,7 @@
     "kubernetes/typed/apps/v1",
     "kubernetes/typed/apps/v1beta1",
     "kubernetes/typed/apps/v1beta2",
+    "kubernetes/typed/auditregistration/v1alpha1",
     "kubernetes/typed/authentication/v1",
     "kubernetes/typed/authentication/v1beta1",
     "kubernetes/typed/authorization/v1",
@@ -685,10 +682,11 @@
     "util/retry",
     "util/workqueue"
   ]
-  revision = "d082d5923d3cc0bfbb066ee5fbdea3d0ca79acf8"
-  version = "kubernetes-1.12.3"
+  revision = "8d9ed539ba3134352c586810e749e58df4e94e4f"
+  version = "kubernetes-1.13.1"
 
 [[projects]]
+  branch = "release-1.12"
   name = "k8s.io/code-generator"
   packages = [
     "cmd/conversion-gen",
@@ -702,8 +700,7 @@
     "cmd/openapi-gen/args",
     "pkg/util"
   ]
-  revision = "3dcf91f64f638563e5106f21f50c31fa361c918d"
-  version = "kubernetes-1.12.0"
+  revision = "b1289fc74931d4b6b04bd1a259acfc88a2cb0a66"
 
 [[projects]]
   branch = "master"
@@ -773,9 +770,15 @@
   revision = "12d98582e72927b6cd0123e2b4e819f9341ce62c"
   version = "v0.1.10"
 
+[[projects]]
+  name = "sigs.k8s.io/yaml"
+  packages = ["."]
+  revision = "fd68e9863619f6ec2fdd8625fe1f02e7c877e480"
+  version = "v1.1.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "719b3625699360377bc96eca53b357d6fc276d46e799439eed58306c3d037e79"
+  inputs-digest = "e29f882f8b705a11898e69321d25fb7514c14514492dd5fc3d9b4ff03b940020"
   solver-name = "gps-cdcl"
   solver-version = 1
