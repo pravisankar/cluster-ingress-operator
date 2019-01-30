@@ -10,7 +10,7 @@ import (
 	configv1 "github.com/openshift/api/config/v1"
 	ingressv1alpha1 "github.com/openshift/cluster-ingress-operator/pkg/apis/ingress/v1alpha1"
 	"github.com/openshift/cluster-ingress-operator/pkg/util/clusteroperator"
-	operatorversion "github.com/openshift/cluster-ingress-operator/version"
+	"github.com/openshift/cluster-ingress-operator/version"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -38,7 +38,26 @@ func (r *reconciler) syncOperatorStatus() error {
 
 	oldConditions := co.Status.Conditions
 	co.Status.Conditions = computeStatusConditions(oldConditions, ns, ingresses, deployments)
-	co.Status.Version = operatorversion.Version
+	co.Status.RelatedObjects = []configv1.ObjectReference{
+		{
+			Resource: "namespaces",
+			Name:     "openshift-ingress-operator",
+		},
+		{
+			Resource: "namespaces",
+			Name:     "openshift-ingress",
+		},
+	}
+	co.Status.Versions = []configv1.OperandVersion{
+		{
+			Name:    "operator",
+			Version: version.OperatorVersion,
+		},
+		{
+			Name:    version.RouterOperandName,
+			Version: version.RouterOperandVersion,
+		},
+	}
 
 	if isNotFound {
 		if err := r.Client.Create(context.TODO(), co); err != nil {

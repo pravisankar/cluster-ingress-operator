@@ -1,5 +1,8 @@
 package version
 
 var (
-	Version = "0.0.1"
+	OperatorVersion = "v0.0.1"
+
+	RouterOperandName    = "router"
+	RouterOperandVersion = "v0.0.1"
 )
